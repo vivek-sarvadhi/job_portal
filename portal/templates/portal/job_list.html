@@ -1,0 +1,161 @@
+{% extends 'users/base.html' %}
+{% load static%}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-2">
+            <p>Salary Category</p>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="10000,20000" name="one" id="one">
+              <label class="form-check-label" for="flexCheckDefault">
+                10000 - 20000
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="20001,35000" name="one" id="two">
+              <label class="form-check-label" for="flexCheckChecked">
+                20001 - 35000
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="35001,100000" id="three">
+              <label class="form-check-label" for="flexCheckChecked">
+                35001 - above
+              </label>
+            </div>
+            <p class="mt-4">Experience Category</p>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="0,1" id="four">
+              <label class="form-check-label" for="flexCheckDefault">
+                0 - 1
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="2,3" id="five">
+              <label class="form-check-label" for="flexCheckChecked">
+                2 - 3
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="3,10" id="six">
+              <label class="form-check-label" for="flexCheckChecked">
+                3 - above
+              </label>
+            </div>
+        </div>
+        <div class="col-md-10">
+        <div class="card">
+            <h1>Available openings</h1>
+            <div class="card-body" id="salary123">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Salary</th>
+                        <th>Experience</th>
+                        <th>Location</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tbodyid">
+                    {% for c in jobs %}
+                        <tr>
+                            <td><a href="{% url 'companyprofiledetaillist' c.companyprofile_id.id %}">{{c.companyprofile_id.name}}</a></td>
+                            <td>{{c.title}}</td>
+                            <td>{{c.salary}}</td>
+                            <td>{{c.experience}}</td>
+                            <td>{{c.location}}</td>
+                            {% if request.user.user_type == "jobseeker" %}
+                            <td><a href="{% url 'job_detail' c.id %}" class="btn btn-info btn-sm" type="submit">View Detail</a></td>
+                            {% elif request.user.user_type == "recruiter" %}
+                            <td><a href="{% url 'job_delete' c.id %}" class="btn btn-info btn-sm" type="submit">Delete</a></td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.form-check-input').change(function(e){
+                e.preventDefault();
+                if($('#one').is(":checked", true)){
+                    var salary1 = $('#one').val();
+                }
+                if($('#two').is(":checked", true)){
+                    var salary2 = $('#two').val();
+                }
+                if($('#three').is(":checked", true)){
+                    var salary3 = $('#three').val();
+                }
+                if($('#four').is(":checked", true)){
+                    var salary4 = $('#four').val();
+                }
+                if($('#five').is(":checked", true)){
+                    var salary5 = $('#five').val();
+                }
+                if($('#six').is(":checked", true)){
+                    var salary6 = $('#six').val();
+                }
+                var data = {'salary1':salary1,'salary2':salary2,'salary3':salary3,'salary4':salary4,'salary5':salary5,'salary6':salary6};
+                $.ajax({
+                    type : 'GET',
+                    url : "{% url 'job_filter' %}",
+                    data : data,
+                    success : function(response){
+                        $("#tbodyid").empty();
+                        var tbody = $('tbody'); 
+                        var num1 = Object.values(response.job_info)
+                        console.log(num1)
+                        if(num1.length != 0){
+                        for (i=0; i < num1.length; i++){
+                            var apply_id = num1[i].id
+                            var row = $('<tr>');
+                            // var cell1 = $('<td>').text(num1[i].companyprofile_id__name);
+                            var cell2 = $('<td>').text(num1[i].title);
+                            var cell4 = $('<td>').text(num1[i].salary);
+                            var cell5 = $('<td>').text(num1[i].experience);
+                            var cell6 = $('<td>').text(num1[i].location);
+                            var cell7 = $(`<td><a href="/portal/job/${apply_id}" class="btn btn-info btn-sm" type="submit">View Detail</a>`);
+                            $(row).append(`<td><a href="/portal/companydetail/${num1[i].companyprofile_id}">${num1[i].companyprofile_id__name}</a></td>`, cell2, cell4, cell5, cell6, cell7);
+                            $(tbody).append(row);    
+                        }
+                        }else{ 
+                            $('#salary123 table tbody').append(`
+                                {% for c in jobs %}
+                                    <tr>
+                                        <td><a href="{% url 'companyprofiledetaillist' c.companyprofile_id.id %}">{{c.companyprofile_id.name}}</a></td>
+                                        <td>{{c.title}}</td>
+                                        <td>{{c.salary}}</td>
+                                        <td>{{c.experience}}</td>
+                                        <td>{{c.location}}</td>
+                                        {% if request.user.user_type == "jobseeker" %}
+                                        <td><a href="{% url 'job_detail' c.id %}" class="btn btn-info btn-sm" type="submit">View Detail</a></td>
+                                        {% elif request.user.user_type == "recruiter" %}
+                                        <td><a href="{% url 'job_delete' c.id %}" class="btn btn-info btn-sm" type="submit">Delete</a></td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            `)
+                        }
+                    },
+                    error : function(response){
+                        console.log(response)
+                    }
+                })
+                // }else{
+                //  $('#salary123 table tbody').remove(tr)
+                // }
+            })
+        })
+    </script>
+{% endblock %}

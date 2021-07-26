@@ -1,0 +1,40 @@
+{% extends 'users/base.html' %}
+{% load static%}
+
+{% block content %}
+<div class="container card mt-4">
+    <h1>Candidates applied</h1>
+    <div class="card-body">
+        <table class="table table-hover">
+            <tr>
+                <th>Name</th>
+                <th>Job title</th>
+                <th>Resume</th>
+                <th>Gender</th>
+                <th>Mobile</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+            {% for c in candidates %}
+                <tr>
+                    <td>{{c.user.first_name}} {{c.user.last_name}}</td>
+                    <td>{{c.job}}</td>
+                    {% if c.resume %}
+                    <td><a href='{{c.resume.url}}' download >{{c.resume}}</td></a></td>
+                    {% else %}
+                    <td>Not submitted</td>
+                    {% endif %}
+                    <td>{{c.gender}}</td>
+                    <td>{{c.mobile}}</td>
+                    <td>{{c.user.email}}</td>
+                    <td>
+                    	<a href="{% url 'contact' c.id %}">send email</a>
+                    	<a href="{% url 'apply_delete' c.id %}">Cancel</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+{% endblock %}

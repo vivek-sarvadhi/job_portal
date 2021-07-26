@@ -1,0 +1,34 @@
+{% extends 'users/base.html' %}
+
+
+{% block content %}
+	<div class="container mt-4">
+		<table class="table">
+		  <thead class="thead-dark">
+		    <tr>
+		      <th scope="col">#</th>
+		      <th scope="col">Name</th>
+		      <th scope="col">Business Stream Name</th>
+		      <th scope="col">Establish date</th>
+		      <th scope="col">Website Url</th>
+		      <th scope="col">Action</th>
+		    </tr>
+		  </thead>
+		  <tbody>
+		  	{% for i in companyprofile %}
+		    <tr>
+		      <th scope="row">1</th>
+		      <td>{{i.name}}</td>
+		      <td>{{i.business_stream_name}}</td>
+		      <td>{{i.establishment_date}}</td>
+		      <td>{{i.website_url|truncatechars:50}}</td>
+		      <td>
+		      	<a href="{% url 'companyprofileupdate' i.id %}">Update</a>
+		      	<a href="{% url 'companyprofiledelete' i.id %}">Delete</a>
+		      </td>
+		    </tr>
+		    {% endfor %}
+		  </tbody>
+		</table>
+	</div>
+{% endblock %}
